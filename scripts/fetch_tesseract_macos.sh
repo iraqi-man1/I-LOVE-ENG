@@ -16,7 +16,7 @@ rm -rf "$DEST"
 mkdir -p "$DEST/lib" "$DEST/tessdata"
 cp "$TESS/bin/tesseract" "$DEST/tesseract"
 chmod u+w "$DEST/tesseract"
-dylibbundler -od -b -x "$DEST/tesseract" -d "$DEST/lib" -p @executable_path/lib/ -s "$PREFIX/lib" -cd
+dylibbundler -od -b -x "$DEST/tesseract" -d "$DEST/lib" -p @executable_path/lib/ -s "$PREFIX/lib" -cd </dev/null
 # Re-sign everything we modified (required on Apple silicon).
 for f in "$DEST/lib/"*.dylib "$DEST/tesseract"; do
   codesign --force --sign - "$f"
