@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import os
 import traceback
 from pathlib import Path
 from typing import Any, Callable
@@ -103,7 +102,9 @@ def _store(result: FileResult, out) -> None:
 
 def worker_main(spec: JobSpec, queue, cancel_event) -> None:
     """Entry point of the worker process."""
-    os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+    from .stamp import prepare_headless_qt
+
+    prepare_headless_qt()
 
     def report(kind: str, payload: Any) -> None:
         queue.put((kind, payload))

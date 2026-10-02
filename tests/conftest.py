@@ -6,9 +6,12 @@ import pytest
 
 import tempfile
 
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 os.environ["PDFTOOLBOX_SETTINGS_DIR"] = tempfile.mkdtemp(prefix="pdftoolbox-test-settings-")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from pdftoolbox.core.stamp import prepare_headless_qt  # noqa: E402
+
+prepare_headless_qt()
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -9,6 +9,7 @@ the page's crop box and rotation so things appear where the reader expects.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from typing import Callable, Iterable
 
@@ -20,6 +21,23 @@ from .geometry import VisibleBox, page_visible_box
 _qt_app = None
 
 
+def prepare_headless_qt() -> None:
+    """Pick a Qt platform for processes that draw but never show a window.
+
+    macOS and Linux use the "offscreen" plugin, which still sees the system
+    fonts. On Windows that plugin finds no fonts at all (text would silently
+    vanish from stamped pages), so the normal "windows" plugin is kept; it
+    opens no window unless asked to. If offscreen is forced anyway, point it
+    at the Windows fonts folder.
+    """
+    if sys.platform.startswith("win"):
+        if os.environ.get("QT_QPA_PLATFORM", "").startswith("offscreen"):
+            fonts = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts"
+            os.environ.setdefault("QT_QPA_FONTDIR", str(fonts))
+    else:
+        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+
 def ensure_qt():
     """Create a QGuiApplication if none exists (needed for fonts in workers)."""
     global _qt_app
@@ -27,7 +45,7 @@ def ensure_qt():
 
     app = QGuiApplication.instance()
     if app is None:
-        os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+        prepare_headless_qt()
         _qt_app = QGuiApplication(["pdftoolbox-worker"])
         app = _qt_app
     return app

@@ -27,7 +27,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     env:
-      QT_QPA_PLATFORM: offscreen
+      # Windows keeps its normal Qt platform: "offscreen" there has no fonts.
+      QT_QPA_PLATFORM: ${{ matrix.os != 'windows-latest' && 'offscreen' || '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
