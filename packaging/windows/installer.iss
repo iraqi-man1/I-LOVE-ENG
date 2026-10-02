@@ -63,8 +63,21 @@ Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithProgids"; ValueType: none; Val
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent
-; After a silent update started from inside the app, start the new version.
-Filename: "{app}\{#AppExe}"; Flags: nowait; Check: WizardSilent
+; After an update started from inside the app (which passes /RELAUNCH), start the new version.
+Filename: "{app}\{#AppExe}"; Flags: nowait; Check: RelaunchAfterUpdate
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\_internal"
+
+[Code]
+function RelaunchAfterUpdate: Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  if not WizardSilent then
+    Exit;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), '/RELAUNCH') = 0 then
+      Result := True;
+end;

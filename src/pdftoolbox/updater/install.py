@@ -26,7 +26,7 @@ def current_app_bundle() -> Path | None:
 def install_windows(installer: Path) -> None:
     # Inno Setup: install silently, close this app, and start the new version.
     flags = 0x00000008 | 0x00000200  # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
-    subprocess.Popen([str(installer), "/SILENT", "/SP-", "/NOCANCEL", "/NORESTART", "/CLOSEAPPLICATIONS"],
+    subprocess.Popen([str(installer), "/SILENT", "/SP-", "/NOCANCEL", "/NORESTART", "/CLOSEAPPLICATIONS", "/RELAUNCH"],
                      creationflags=flags, close_fds=True)
 
 
