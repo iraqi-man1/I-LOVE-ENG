@@ -89,7 +89,10 @@ jobs:
         shell: pwsh
         run: |
           $setup = Get-ChildItem dist\PDFToolbox-*-windows-x64-setup.exe | Select-Object -First 1
-          $p = Start-Process -FilePath $setup.FullName -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CURRENTUSER") -Wait -PassThru
+          # -Wait would also wait for any program the installer starts, so wait for the installer alone.
+          $p = Start-Process -FilePath $setup.FullName -ArgumentList @("/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CURRENTUSER") -PassThru
+          $null = $p.Handle  # keeps the exit code readable once it has finished
+          if (-not $p.WaitForExit(600000)) { throw "The installer did not finish within 10 minutes" }
           if ($p.ExitCode -ne 0) { throw "Installer failed with exit code $($p.ExitCode)" }
           Start-Sleep -Seconds 5
           Get-Process "PDF Toolbox" -ErrorAction SilentlyContinue | Stop-Process -Force
