@@ -51,18 +51,19 @@ def _missing_message(kind: str) -> str:
 
 
 def _convert_ms_office(kind: str, source: Path, out: Path) -> None:
-    import comtypes
-    import comtypes.client
+    import pythoncom
+    import win32com.client
 
-    comtypes.CoInitialize()
+    pythoncom.CoInitialize()
     app = None
     try:
-        app = comtypes.client.CreateObject(PROG_IDS[kind], dynamic=True)
+        # DispatchEx starts a separate, hidden instance so open documents are not touched.
+        app = win32com.client.DispatchEx(PROG_IDS[kind])
         src, dst = str(source.resolve()), str(out.resolve())
         if kind == WORD:
             app.Visible = False
             app.DisplayAlerts = 0
-            doc = app.Documents.Open(src, False, True, False)  # ConfirmConversions, ReadOnly, AddToRecent
+            doc = app.Documents.Open(src, ConfirmConversions=False, ReadOnly=True, AddToRecentFiles=False)
             try:
                 doc.ExportAsFixedFormat(dst, 17)  # wdExportFormatPDF
             finally:
@@ -70,13 +71,13 @@ def _convert_ms_office(kind: str, source: Path, out: Path) -> None:
         elif kind == EXCEL:
             app.Visible = False
             app.DisplayAlerts = False
-            book = app.Workbooks.Open(src, 0, True)  # UpdateLinks, ReadOnly
+            book = app.Workbooks.Open(src, UpdateLinks=0, ReadOnly=True)
             try:
                 book.ExportAsFixedFormat(0, dst)  # xlTypePDF
             finally:
                 book.Close(False)
         else:
-            pres = app.Presentations.Open(src, True, False, False)  # ReadOnly, Untitled, WithWindow
+            pres = app.Presentations.Open(src, ReadOnly=True, Untitled=False, WithWindow=False)
             try:
                 pres.SaveAs(dst, 32)  # ppSaveAsPDF
             finally:
@@ -87,7 +88,7 @@ def _convert_ms_office(kind: str, source: Path, out: Path) -> None:
                 app.Quit()
             except Exception:  # noqa: BLE001
                 pass
-        comtypes.CoUninitialize()
+        pythoncom.CoUninitialize()
 
 
 def _convert_libreoffice(source: Path, out: Path, ctx) -> None:

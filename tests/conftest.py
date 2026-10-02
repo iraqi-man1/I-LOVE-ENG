@@ -4,8 +4,20 @@ from pathlib import Path
 
 import pytest
 
+import tempfile
+
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+os.environ["PDFTOOLBOX_SETTINGS_DIR"] = tempfile.mkdtemp(prefix="pdftoolbox-test-settings-")
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def qt_app():
+    # One QApplication for the whole run (the stamping code reuses it).
+    from PySide6.QtWidgets import QApplication
+
+    app = QApplication.instance() or QApplication([])
+    yield app
 
 
 def _make_pdf(path: Path, pages: int = 3, *, size=(595, 842), text="Hello page", image=False, rotate=0):

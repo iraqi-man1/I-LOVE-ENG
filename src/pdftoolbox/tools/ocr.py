@@ -82,10 +82,12 @@ def _page_has_text(doc, index: int) -> bool:
 
 def _run_tesseract(exe: Path, image: Path, base: Path, langs: str, dpi: int, tessdata: Path,
                    want_text: bool) -> None:
+    # Options are passed directly (not as "pdf"/"txt" config files) so any
+    # folder with .traineddata files works as the tessdata folder.
     cmd = [str(exe), str(image), str(base), "-l", langs, "--dpi", str(dpi), "--tessdata-dir", str(tessdata),
-           "-c", "textonly_pdf=1", "pdf"]
+           "-c", "tessedit_create_pdf=1", "-c", "textonly_pdf=1"]
     if want_text:
-        cmd.append("txt")
+        cmd += ["-c", "tessedit_create_txt=1"]
     env = dict(os.environ, OMP_THREAD_LIMIT="1")
     flags = subprocess.CREATE_NO_WINDOW if IS_WINDOWS else 0
     proc = subprocess.run(cmd, capture_output=True, env=env, creationflags=flags, timeout=900)

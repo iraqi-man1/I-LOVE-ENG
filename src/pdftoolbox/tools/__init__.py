@@ -33,6 +33,7 @@ TOOL_MODULES = (
     "protect",
     "unlock",
     "batch",
+    "scan_save",
 )
 
 _registry: dict[str, Tool] | None = None

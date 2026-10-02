@@ -184,6 +184,8 @@ class Tool:
     # Optional: return an error message when a requirement is missing (e.g. Tesseract).
     check: Callable[[], str | None] | None = None
     keywords: str = ""
+    # Hidden tools are used by other screens (for example Scan) and not listed.
+    hidden: bool = False
 
     def accepts(self, path: str) -> bool:
         lower = path.lower()

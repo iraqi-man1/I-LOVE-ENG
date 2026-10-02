@@ -1,0 +1,9 @@
+# Exact versions used to build the installers.
+PySide6-Essentials==6.11.2
+pikepdf==10.16.0
+pypdfium2==5.13.0
+Pillow==12.3.0
+packaging==26.3
+truststore==0.10.4
+pywin32==312; sys_platform == "win32"
+pyobjc-framework-ImageCaptureCore==12.2.2; sys_platform == "darwin"

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdftoolbox"
+dynamic = ["version"]
+description = "Offline desktop toolkit for PDF files, with scanning and OCR"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "PySide6-Essentials>=6.8",
+    "pikepdf>=9.0",
+    "pypdfium2>=4.30",
+    "Pillow>=10.0",
+    "packaging>=23.0",
+    "truststore>=0.9",
+    "pywin32>=306; sys_platform == 'win32'",
+    "pyobjc-framework-ImageCaptureCore>=10.0; sys_platform == 'darwin'",
+]
+
+[project.gui-scripts]
+pdftoolbox = "pdftoolbox.__main__:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "pdftoolbox.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pdftoolbox = ["resources/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"

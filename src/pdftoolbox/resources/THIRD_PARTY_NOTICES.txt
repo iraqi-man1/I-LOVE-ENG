@@ -1,0 +1,51 @@
+PDF Toolbox includes the following open-source components. Each keeps its own
+licence; the full licence texts are available at the links below. None of
+them is modified.
+
+Qt 6 and PySide6 (Qt for Python)
+  Licence: GNU LGPL v3. https://www.qt.io/  https://doc.qt.io/qtforpython/
+  Qt libraries are shipped as separate shared libraries in the application
+  folder and can be replaced by the user. Source: https://download.qt.io/
+
+pikepdf
+  Licence: MPL 2.0. https://github.com/pikepdf/pikepdf
+
+qpdf
+  Licence: Apache 2.0. https://github.com/qpdf/qpdf
+
+pypdfium2
+  Licence: Apache 2.0 or BSD-3-Clause. https://github.com/pypdfium2-team/pypdfium2
+
+PDFium
+  Licence: BSD-3-Clause and Apache 2.0. https://pdfium.googlesource.com/pdfium/
+
+Pillow
+  Licence: MIT-CMU (HPND). https://github.com/python-pillow/Pillow
+
+Tesseract OCR and its language data (tessdata)
+  Licence: Apache 2.0. https://github.com/tesseract-ocr/tesseract
+  Windows build by UB Mannheim. Leptonica (BSD-2-Clause) and the image
+  libraries it uses (libpng, libjpeg-turbo, libtiff, libwebp, giflib,
+  OpenJPEG, zlib) are under permissive licences.
+
+packaging
+  Licence: Apache 2.0 or BSD-2-Clause. https://github.com/pypa/packaging
+
+truststore
+  Licence: MIT. https://github.com/sethmlarson/truststore
+
+pywin32 (Windows)
+  Licence: PSF. https://github.com/mhammond/pywin32
+
+PyObjC (macOS)
+  Licence: MIT. https://github.com/ronaldoussoren/pyobjc
+
+Python
+  Licence: PSF License. https://www.python.org/
+
+PyInstaller bootloader
+  Licence: GPL 2.0 with an exception that allows distributing applications
+  under any licence. https://pyinstaller.org/
+
+Office conversion uses Microsoft Office or LibreOffice when they are already
+installed on the computer; neither is included.

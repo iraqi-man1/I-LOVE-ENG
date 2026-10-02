@@ -51,8 +51,14 @@ def image_xobject(pdf: pikepdf.Pdf, image: Image.Image, raw_jpeg: bytes | None =
             smask.ColorSpace, smask.BitsPerComponent = pikepdf.Name.DeviceGray, 8
             smask.Filter = pikepdf.Name.FlateDecode
         image = rgba.convert("RGB")
-    elif image.mode in ("1",):
-        image = image.convert("L")
+    elif image.mode == "1":
+        # Black and white: keep 1 bit per pixel, lossless (JPEG would blur the edges).
+        stream = pikepdf.Stream(pdf, zlib.compress(image.tobytes(), 9))
+        stream.Type, stream.Subtype = pikepdf.Name.XObject, pikepdf.Name.Image
+        stream.Width, stream.Height = image.width, image.height
+        stream.ColorSpace, stream.BitsPerComponent = pikepdf.Name.DeviceGray, 1
+        stream.Filter = pikepdf.Name.FlateDecode
+        return stream
     elif image.mode not in ("L", "RGB"):
         image = image.convert("RGB")
     if quality:
