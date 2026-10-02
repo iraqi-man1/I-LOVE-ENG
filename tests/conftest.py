@@ -10,8 +10,10 @@ os.environ["PDFTOOLBOX_SETTINGS_DIR"] = tempfile.mkdtemp(prefix="pdftoolbox-test
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from pdftoolbox.core.stamp import prepare_headless_qt  # noqa: E402
+from pdftoolbox.ui import settings as _settings  # noqa: E402
 
 prepare_headless_qt()
+_settings.put("updates/auto", False)  # tests never contact GitHub
 
 
 @pytest.fixture(scope="session", autouse=True)

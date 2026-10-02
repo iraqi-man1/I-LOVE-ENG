@@ -5,7 +5,7 @@ from __future__ import annotations
 import tempfile
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QThread, QUrl, Signal
+from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout, QLabel, QMessageBox,
@@ -18,9 +18,10 @@ from pdftoolbox.updater import github
 from pdftoolbox.updater.install import install
 
 from . import icons, settings, theme
+from .background import Worker
 
 
-class UpdateCheck(QThread):
+class UpdateCheck(Worker):
     found = Signal(object)
     none = Signal()
     error = Signal(str)
@@ -40,13 +41,13 @@ class UpdateCheck(QThread):
             self.none.emit()
 
 
-class Download(QThread):
+class Download(Worker):
     progress = Signal(int, int)
     done = Signal(str)
     error = Signal(str)
 
-    def __init__(self, release):
-        super().__init__()
+    def __init__(self, release, parent=None):
+        super().__init__(parent)
         self.release = release
         self.cancelled = False
 
@@ -121,11 +122,15 @@ class UpdateDialog(QDialog):
         self.install_btn.setEnabled(False)
         self.progress.show()
         self.status.setText("Downloading…")
-        self.download = Download(self.release)
+        self.download = Download(self.release, self)
         self.download.progress.connect(self._progress)
         self.download.done.connect(self._downloaded)
         self.download.error.connect(self._failed)
+        self.download.finished.connect(self._download_finished)
         self.download.start()
+
+    def _download_finished(self):
+        self.download = None
 
     def _progress(self, received, total):
         if total:
@@ -161,9 +166,8 @@ class UpdateDialog(QDialog):
                                 "then restart the app.")
 
     def reject(self):
-        if self.download is not None and self.download.isRunning():
+        if self.download is not None:
             self.download.cancelled = True
-            self.download.wait(3000)
         super().reject()
 
 

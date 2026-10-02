@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from PySide6.QtCore import QSize, Qt, QThread, Signal
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QColor, QIcon, QImageReader, QPainter, QPixmap, QTransform
 from PySide6.QtWidgets import (
     QAbstractItemView, QCheckBox, QComboBox, QFileDialog, QFormLayout, QFrame, QHBoxLayout, QLabel, QLineEdit,
@@ -20,6 +20,7 @@ from pdftoolbox.scan import ScanError, ScannerInfo, ScanSettings, get_backend
 from pdftoolbox.scan.base import BW, COLOR, DUPLEX, FEEDER, FLATBED, GRAY
 
 from . import desktop, icons, settings, theme
+from .background import Worker
 from .job_runner import JobRunner
 
 ROLE_PATH = Qt.ItemDataRole.UserRole
@@ -27,12 +28,12 @@ ROLE_ROTATE = Qt.ItemDataRole.UserRole + 1
 SOURCE_LABELS = {FLATBED: "Flatbed (glass)", FEEDER: "Document feeder", DUPLEX: "Document feeder, both sides"}
 
 
-class DeviceFinder(QThread):
+class DeviceFinder(Worker):
     found = Signal(list)
     error = Signal(str)
 
-    def __init__(self, backend):
-        super().__init__()
+    def __init__(self, backend, parent=None):
+        super().__init__(parent)
         self.backend = backend
 
     def run(self):
@@ -42,13 +43,13 @@ class DeviceFinder(QThread):
             self.error.emit(str(exc))
 
 
-class ScanWorker(QThread):
+class ScanWorker(Worker):
     page = Signal(str)
     error = Signal(str)
     done = Signal(int)
 
-    def __init__(self, backend, device, scan_settings, folder):
-        super().__init__()
+    def __init__(self, backend, device, scan_settings, folder, parent=None):
+        super().__init__(parent)
         self.backend, self.device, self.settings, self.folder = backend, device, scan_settings, folder
         self._cancel = False
 
@@ -342,7 +343,7 @@ class ScanPage(QWidget):
         self.device_status.setText("Looking for scanners…")
         self.device_box.clear()
         self.scan_btn.setEnabled(False)
-        self.finder = DeviceFinder(self.backend)
+        self.finder = DeviceFinder(self.backend, self)
         self.finder.found.connect(self._devices_found)
         self.finder.error.connect(lambda m: self._devices_found([], m))
         self.finder.finished.connect(self._finder_done)
@@ -399,7 +400,7 @@ class ScanPage(QWidget):
                            ("scan/color", scan_settings.color), ("scan/dpi", scan_settings.dpi),
                            ("scan/page", scan_settings.page)):
             settings.put(key, value)
-        self.worker = ScanWorker(self.backend, device, scan_settings, self.workdir)
+        self.worker = ScanWorker(self.backend, device, scan_settings, self.workdir, self)
         self.worker.page.connect(self._add_page)
         self.worker.error.connect(self._scan_error)
         self.worker.done.connect(lambda n: self.scan_status.setText(

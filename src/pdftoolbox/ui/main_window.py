@@ -439,7 +439,7 @@ class MainWindow(QMainWindow):
     def check_updates(self, manual: bool):
         if self.checker is not None:
             return
-        self.checker = UpdateCheck()
+        self.checker = UpdateCheck(self)
         self.checker.found.connect(lambda r: self._update_found(r, manual))
         if manual:
             self.checker.none.connect(lambda: QMessageBox.information(

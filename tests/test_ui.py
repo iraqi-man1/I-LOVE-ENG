@@ -65,6 +65,28 @@ def test_run_job_from_page(app, make_pdf, tmp_path):
     win.close()
 
 
+def test_quitting_during_update_check_is_safe(app, monkeypatch):
+    # The check is still waiting on the network when the tests finish. With a
+    # QThread this aborted the whole process at exit.
+    import threading
+    import time
+
+    from pdftoolbox.ui.main_window import MainWindow
+    from pdftoolbox.updater import github
+
+    started = threading.Event()
+
+    def slow_check(*args, **kwargs):
+        started.set()
+        time.sleep(60)
+
+    monkeypatch.setattr(github, "check_latest", slow_check)
+    win = MainWindow()
+    win.check_updates(manual=False)
+    assert started.wait(5)
+    win.close()
+
+
 def test_home_search_and_drop_filter(app, make_pdf):
     from pdftoolbox.ui.main_window import HomePage
 
